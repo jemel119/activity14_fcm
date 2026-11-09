@@ -2,10 +2,16 @@ import 'package:activity14_fcm/main.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('Shows the Activity 14 startup screen', (tester) async {
-    await tester.pumpWidget(const MyApp());
+  test('Supported promo payload selects the bundled promo image', () {
+    final result = validatePayload({'action': 'update_ui', 'asset': 'promo'});
 
-    expect(find.text('Activity 14 FCM'), findsOneWidget);
-    expect(find.text('Firebase initialized.'), findsOneWidget);
+    expect(result.assetPath, promoImage);
+  });
+
+  test('Unsupported asset is rejected without a replacement image', () {
+    final result = validatePayload({'action': 'update_ui', 'asset': 'unknown'});
+
+    expect(result.assetPath, isNull);
+    expect(result.diagnostic, 'Rejected: unsupported asset.');
   });
 }
