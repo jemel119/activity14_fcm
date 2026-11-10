@@ -68,7 +68,7 @@ class FCMService {
       }
     }, onError: handleStreamError);
 
-    final token = await _messaging.getToken();
+    final token = await getCurrentToken();
     if (_disposed) return;
 
     if (token == null || token.isEmpty) {
@@ -79,6 +79,8 @@ class FCMService {
       debugPrint('FCM token: $token');
     }
   }
+
+  Future<String?> getCurrentToken() => _messaging.getToken();
 
   Future<void> dispose() async {
     _disposed = true;

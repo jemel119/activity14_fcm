@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'fcm_service.dart';
 import 'firebase_options.dart';
@@ -134,6 +136,29 @@ class _CampusUpdatesPageState extends State<CampusUpdatesPage> {
     });
   }
 
+  Future<void> _copyFcmToken() async {
+    String feedback;
+
+    try {
+      final token = await _service.getCurrentToken();
+
+      if (token == null || token.isEmpty) {
+        feedback = 'FCM token unavailable. Try again.';
+      } else {
+        await Clipboard.setData(ClipboardData(text: token));
+        feedback = 'FCM token copied.';
+      }
+    } catch (error) {
+      debugPrint('Could not copy FCM token: $error');
+      feedback = 'Could not copy the FCM token. Try again.';
+    }
+
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(feedback)));
+  }
+
   @override
   void dispose() {
     unawaited(_service.dispose());
@@ -168,6 +193,11 @@ class _CampusUpdatesPageState extends State<CampusUpdatesPage> {
             const SizedBox(height: 12),
             Text(_permission),
             Text(_setupStatus),
+            if (kDebugMode)
+              OutlinedButton(
+                onPressed: _copyFcmToken,
+                child: const Text('Copy FCM token'),
+              ),
           ],
         ),
       ),
